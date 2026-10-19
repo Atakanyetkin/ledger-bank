@@ -282,4 +282,98 @@ class BankingServiceTest {
         );
     }
 
+    @Test
+    void transferShouldRejectNullSenderAccountNumber() {
+        assertThrows(
+                NullPointerException.class,
+                () -> bankingService.transfer(
+                        null,
+                        "ACC-1002",
+                        new BigDecimal("100.00")
+                )
+        );
+    }
+
+    @Test
+    void transferShouldRejectNullRecipientAccountNumber() {
+        assertThrows(
+                NullPointerException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        null,
+                        new BigDecimal("100.00")
+                )
+        );
+    }
+
+    @Test
+    void constructorShouldRejectNullRepository() {
+        assertThrows(
+                NullPointerException.class,
+                () -> new BankingService(null)
+        );
+    }
+
+
+    @Test
+    void transferShouldRejectBlankSenderAccountNumber() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "",
+                        "ACC-1002",
+                        new BigDecimal("100.00")
+                )
+        );
+    }
+
+    @Test
+    void transferShouldRejectBlankRecipientAccountNumber() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "   ",
+                        new BigDecimal("100.00")
+                )
+        );
+    }
+
+    @Test
+    void transferShouldRejectNullAmount() {
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("1000.00")
+        );
+        bankingService.createAccount(
+                "ACC-1002",
+                "Jane Doe",
+                new BigDecimal("500.00")
+        );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-1002",
+                        null
+                )
+        );
+
+        assertEquals(
+                0,
+                new BigDecimal("1000.00")
+                        .compareTo(bankingService.getAccount("ACC-1001").getBalance())
+        );
+        assertEquals(
+                0,
+                new BigDecimal("500.00")
+                        .compareTo(bankingService.getAccount("ACC-1002").getBalance())
+        );
+    }
+
+
+
+
 }

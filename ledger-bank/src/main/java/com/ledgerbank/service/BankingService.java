@@ -5,7 +5,7 @@ import com.ledgerbank.model.Account;
 import com.ledgerbank.repository.AccountRepository;
 
 import java.math.BigDecimal;
-
+import java.util.Objects;
 /**
  * Coordinates banking operations using the account repository.
  */
@@ -19,7 +19,10 @@ public class BankingService {
      * @param accountRepository repository used to store and retrieve accounts
      */
     public BankingService(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+        this.accountRepository = Objects.requireNonNull(
+                accountRepository,
+                "Account repository cannot be null"
+        );
     }
 
     /**
@@ -67,11 +70,33 @@ public class BankingService {
             String toAccountNumber,
             BigDecimal amount
     ) {
+
+        Objects.requireNonNull(
+                fromAccountNumber,
+                "Sender account number cannot be null."
+        );
+        Objects.requireNonNull(
+                toAccountNumber,
+                "Recipient account number cannot be null."
+        );
+
+        if (fromAccountNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Sender account number cannot be blank."
+            );
+        }
+        if (toAccountNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Recipient account number cannot be blank."
+            );
+        }
+
         if (fromAccountNumber.equals(toAccountNumber)) {
             throw new IllegalArgumentException(
                     "Cannot transfer money to the same account."
             );
         }
+
 
         Account sender = findAccountOrThrow(fromAccountNumber);
         Account recipient = findAccountOrThrow(toAccountNumber);
@@ -88,10 +113,23 @@ public class BankingService {
         return findAccountOrThrow(accountNumber);
     }
 
+
     private Account findAccountOrThrow(String accountNumber) {
+        Objects.requireNonNull(
+                accountNumber,
+                "Account number cannot be null."
+        );
+
+        if (accountNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Account number cannot be blank."
+            );
+        }
+
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Account not found: " + accountNumber
                 ));
     }
+
 }
