@@ -56,6 +56,32 @@ public class BankingService {
     }
 
     /**
+     * Transfers money between two existing accounts.
+     *
+     * @param fromAccountNumber account number to transfer money from
+     * @param toAccountNumber account number to transfer money to
+     * @param amount amount to transfer; must be positive
+     */
+    public void transfer(
+            String fromAccountNumber,
+            String toAccountNumber,
+            BigDecimal amount
+    ) {
+        if (fromAccountNumber.equals(toAccountNumber)) {
+            throw new IllegalArgumentException(
+                    "Cannot transfer money to the same account."
+            );
+        }
+
+        Account sender = findAccountOrThrow(fromAccountNumber);
+        Account recipient = findAccountOrThrow(toAccountNumber);
+
+        sender.withdraw(amount);
+        recipient.deposit(amount);
+    }
+
+
+    /**
      * Retrieves an account or fails if it does not exist.
      */
     public Account getAccount(String accountNumber) {

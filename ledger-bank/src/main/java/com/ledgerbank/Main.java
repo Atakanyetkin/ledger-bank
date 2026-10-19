@@ -21,16 +21,41 @@ public class Main {
                 "John Doe",
                 new BigDecimal("1000.00")
         );
+        bankingService.createAccount(
+                "ACC-1002",
+                "Jane Doe",
+                new BigDecimal("500.00")
+        );
 
-        // Perform transactions using the account number.
-        bankingService.deposit("ACC-1001", new BigDecimal("250.00"));
-        bankingService.withdraw("ACC-1001", new BigDecimal("100.00"));
 
-        // Retrieve the account and display its current state.
-        var account = bankingService.getAccount("ACC-1001");
+        var sender = bankingService.getAccount("ACC-1001");
+        var recipient = bankingService.getAccount("ACC-1002");
 
-        System.out.println("Account number: " + account.getAccountNumber());
-        System.out.println("Account owner: " + account.getOwnerName());
-        System.out.println("Current balance: " + account.getBalance());
+        System.out.println("Before transfer:");
+        System.out.println(
+                sender.getOwnerName() + ": " + sender.getBalance()
+        );
+        System.out.println(
+                recipient.getOwnerName() + ": " + recipient.getBalance()
+        );
+
+// Transfer money from John to Jane.
+        bankingService.transfer(
+                "ACC-1001",
+                "ACC-1002",
+                new BigDecimal("200.00")
+        );
+
+// Retrieve the updated account balances.
+        sender = bankingService.getAccount("ACC-1001");
+        recipient = bankingService.getAccount("ACC-1002");
+
+        System.out.println("\nAfter transfer:");
+        System.out.println(
+                sender.getOwnerName() + ": " + sender.getBalance()
+        );
+        System.out.println(
+                recipient.getOwnerName() + ": " + recipient.getBalance()
+        );
     }
 }

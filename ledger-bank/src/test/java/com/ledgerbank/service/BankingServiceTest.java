@@ -100,4 +100,186 @@ class BankingServiceTest {
                 )
         );
     }
+
+    @Test
+    void transferShouldUpdateBothAccountBalances() {
+        // Create sender and recipient accounts with known balances.
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("1000.00")
+        );
+        bankingService.createAccount(
+                "ACC-1002",
+                "Jane Doe",
+                new BigDecimal("500.00")
+        );
+
+        // Transfer 200.00 from the sender to the recipient.
+        bankingService.transfer(
+                "ACC-1001",
+                "ACC-1002",
+                new BigDecimal("200.00")
+        );
+
+        assertEquals(
+                0,
+                new BigDecimal("800.00")
+                        .compareTo(bankingService.getAccount("ACC-1001").getBalance())
+        );
+        assertEquals(
+                0,
+                new BigDecimal("700.00")
+                        .compareTo(bankingService.getAccount("ACC-1002").getBalance())
+        );
+    }
+
+    @Test
+    void transferShouldFailWhenSenderHasInsufficientFunds() {
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("100.00")
+        );
+        bankingService.createAccount(
+                "ACC-1002",
+                "Jane Doe",
+                new BigDecimal("500.00")
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-1002",
+                        new BigDecimal("200.00")
+                )
+        );
+
+        // A rejected transfer must leave both balances unchanged.
+        assertEquals(
+                0,
+                new BigDecimal("100.00")
+                        .compareTo(bankingService.getAccount("ACC-1001").getBalance())
+        );
+        assertEquals(
+                0,
+                new BigDecimal("500.00")
+                        .compareTo(bankingService.getAccount("ACC-1002").getBalance())
+        );
+    }
+
+    @Test
+    void transferShouldRejectSameAccount() {
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("1000.00")
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-1001",
+                        new BigDecimal("100.00")
+                )
+        );
+    }
+
+    @Test
+    void transferShouldFailWhenRecipientDoesNotExist() {
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("1000.00")
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-9999",
+                        new BigDecimal("100.00")
+                )
+        );
+
+        // A missing recipient must not cause money to leave the sender.
+        assertEquals(
+                0,
+                new BigDecimal("1000.00")
+                        .compareTo(bankingService.getAccount("ACC-1001").getBalance())
+        );
+    }
+
+    @Test
+    void transferShouldRejectZeroAmount() {
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("1000.00")
+        );
+        bankingService.createAccount(
+                "ACC-1002",
+                "Jane Doe",
+                new BigDecimal("500.00")
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-1002",
+                        BigDecimal.ZERO
+                )
+        );
+
+        // An invalid transfer must leave both balances unchanged.
+        assertEquals(
+                0,
+                new BigDecimal("1000.00")
+                        .compareTo(bankingService.getAccount("ACC-1001").getBalance())
+        );
+        assertEquals(
+                0,
+                new BigDecimal("500.00")
+                        .compareTo(bankingService.getAccount("ACC-1002").getBalance())
+        );
+    }
+
+    @Test
+    void transferShouldRejectNegativeAmount() {
+        bankingService.createAccount(
+                "ACC-1001",
+                "John Doe",
+                new BigDecimal("1000.00")
+        );
+        bankingService.createAccount(
+                "ACC-1002",
+                "Jane Doe",
+                new BigDecimal("500.00")
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-1002",
+                        new BigDecimal("-100.00")
+                )
+        );
+
+        // A rejected transfer must leave both balances unchanged.
+        assertEquals(
+                0,
+                new BigDecimal("1000.00")
+                        .compareTo(bankingService.getAccount("ACC-1001").getBalance())
+        );
+        assertEquals(
+                0,
+                new BigDecimal("500.00")
+                        .compareTo(bankingService.getAccount("ACC-1002").getBalance())
+        );
+    }
+
 }
