@@ -1,28 +1,34 @@
 
 package com.ledgerbank;
 
-import com.ledgerbank.model.Account;
+import com.ledgerbank.repository.AccountRepository;
 import com.ledgerbank.service.BankingService;
+
 import java.math.BigDecimal;
 
 public class Main {
 
     public static void main(String[] args) {
-        // Create a bank account with an initial balance of 1000.00.
-        Account account = new Account(
+        // Create the repository that stores accounts in memory.
+        AccountRepository accountRepository = new AccountRepository();
+
+        // Inject the repository into the banking service.
+        BankingService bankingService = new BankingService(accountRepository);
+
+        // Create a new account through the service layer.
+        bankingService.createAccount(
                 "ACC-1001",
                 "John Doe",
                 new BigDecimal("1000.00")
         );
 
-        // Create the service responsible for banking operations.
-        BankingService bankingService = new BankingService();
+        // Perform transactions using the account number.
+        bankingService.deposit("ACC-1001", new BigDecimal("250.00"));
+        bankingService.withdraw("ACC-1001", new BigDecimal("100.00"));
 
-        // Perform banking operations through the service layer.
-        bankingService.deposit(account, new BigDecimal("250.00"));
-        bankingService.withdraw(account, new BigDecimal("100.00"));
+        // Retrieve the account and display its current state.
+        var account = bankingService.getAccount("ACC-1001");
 
-        // Display the account details and the final balance.
         System.out.println("Account number: " + account.getAccountNumber());
         System.out.println("Account owner: " + account.getOwnerName());
         System.out.println("Current balance: " + account.getBalance());
