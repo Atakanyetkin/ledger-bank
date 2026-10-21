@@ -2,6 +2,7 @@
 package com.ledgerbank.repository;
 
 import com.ledgerbank.model.Account;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Optional;
  * This repository keeps data in memory for now.
  * A database-backed implementation can be introduced later.
  */
+@Repository
 public class AccountRepository {
 
     // Use the account number as the unique key for each account.

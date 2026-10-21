@@ -3,12 +3,15 @@ package com.ledgerbank.service;
 
 import com.ledgerbank.model.Account;
 import com.ledgerbank.repository.AccountRepository;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+
 /**
  * Coordinates banking operations using the account repository.
  */
+@Service
 public class BankingService {
 
     private final AccountRepository accountRepository;
