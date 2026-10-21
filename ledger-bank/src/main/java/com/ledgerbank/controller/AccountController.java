@@ -12,6 +12,8 @@ import com.ledgerbank.dto.MoneyRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
@@ -24,7 +26,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public void createAccount(@RequestBody CreateAccountRequest request) {
+    public void createAccount(@Valid @RequestBody CreateAccountRequest request) {
         bankingService.createAccount(
                 request.accountNumber(),
                 request.ownerName(),
@@ -40,7 +42,7 @@ public class AccountController {
     @PostMapping("/{accountNumber}/deposit")
     public Account deposit(
             @PathVariable String accountNumber,
-            @RequestBody MoneyRequest request) {
+           @Valid @RequestBody MoneyRequest request) {
 
         bankingService.deposit(accountNumber, request.amount());
         return bankingService.getAccount(accountNumber);
@@ -49,7 +51,7 @@ public class AccountController {
     @PostMapping("/{accountNumber}/withdraw")
     public Account withdraw(
             @PathVariable String accountNumber,
-            @RequestBody MoneyRequest request) {
+           @Valid @RequestBody MoneyRequest request) {
 
         bankingService.withdraw(accountNumber, request.amount());
         return bankingService.getAccount(accountNumber);

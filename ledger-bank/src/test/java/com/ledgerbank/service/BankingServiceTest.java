@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.ledgerbank.exception.AccountNotFoundException;
+
 class BankingServiceTest {
 
     private AccountRepository accountRepository;
@@ -78,7 +80,7 @@ class BankingServiceTest {
     @Test
     void getAccountShouldFailWhenAccountDoesNotExist() {
         assertThrows(
-                IllegalArgumentException.class,
+                AccountNotFoundException.class,
                 () -> bankingService.getAccount("ACC-9999")
         );
     }
@@ -184,6 +186,14 @@ class BankingServiceTest {
                         "ACC-1001",
                         new BigDecimal("100.00")
                 )
+
+        );
+        assertEquals(
+                0,
+                new BigDecimal("1000.00")
+                        .compareTo(
+                                bankingService.getAccount("ACC-1001").getBalance()
+                        )
         );
     }
 
@@ -196,7 +206,7 @@ class BankingServiceTest {
         );
 
         assertThrows(
-                IllegalArgumentException.class,
+                AccountNotFoundException.class,
                 () -> bankingService.transfer(
                         "ACC-1001",
                         "ACC-9999",
@@ -374,6 +384,28 @@ class BankingServiceTest {
     }
 
 
+    @Test
+    void transferShouldFailWhenSourceAndDestinationAreTheSame() {
+        Account account = new Account(
+                "ACC-1001",
+                "Atakan",
+                new BigDecimal("1000.00")
+        );
+        accountRepository.save(account);
 
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> bankingService.transfer(
+                        "ACC-1001",
+                        "ACC-1001",
+                        new BigDecimal("100.00")
+                )
+        );
+
+        assertEquals(
+                new BigDecimal("1000.00"),
+                account.getBalance()
+        );
+    }
 
 }

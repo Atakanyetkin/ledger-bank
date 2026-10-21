@@ -5,6 +5,8 @@ import com.ledgerbank.model.Account;
 import com.ledgerbank.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
+import com.ledgerbank.exception.AccountNotFoundException;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -130,9 +132,7 @@ public class BankingService {
         }
 
         return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Account not found: " + accountNumber
-                ));
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
     }
 
 }
